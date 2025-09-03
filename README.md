@@ -130,27 +130,6 @@ Look for the output snippet in the test logs:
 ---end output ---
 ```
 
-**Submit this entire snippet (including the begin/end markers) to complete Task One.**
-
-### Submission Process
-
-1. **For Forage Program**: Submit the output snippet directly in the Forage platform interface
-2. **For GitHub**: While you have a forked repository, the primary submission is through the Forage platform
-3. **Optional**: You may push your changes to your fork for portfolio purposes
-
-### Pushing to Your Fork (Optional)
-
-To push your changes to your forked repository:
-
-```bash
-# Add and commit your changes
-git add .
-git commit -m "Complete Task One: Setup development environment and dependencies"
-
-# Push to your fork
-git push origin main
-```
-
 ## Development Notes
 
 - The H2 database runs in-memory and is automatically configured
@@ -176,14 +155,4 @@ git push origin main
 
 4. **IDE Issues**: Import as a Maven project and ensure Java 17 is configured
 
-## Next Steps
-
-After completing Task One, you'll work on:
-- Task Two: Database integration and JPA setup
-- Task Three: Kafka message processing
-- Task Four: REST API development
-- Task Five: System integration and testing
-
-## Support
-
-For issues specific to the Forage program, refer to the program documentation and support channels.
+### Saurabh Kumar
