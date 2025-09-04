@@ -54,6 +54,24 @@ src/
     └── UserPopulator.java                 # Test data population
 ```
 
+## Current Features
+
+### ✅ Implemented
+- **Environment Setup**: Complete development environment with all required dependencies
+- **Kafka Integration**: Real-time transaction message consumption
+  - `@KafkaListener` for transaction topic subscription
+  - JSON deserialization of incoming Transaction objects
+  - Configurable topic names via `application.yml`
+  - Integration with embedded Kafka for testing
+- **Domain Models**: Transaction and UserRecord entities with proper JPA annotations
+- **Spring Boot Configuration**: Auto-configuration for Kafka, JPA, and Web layers
+- **Comprehensive Testing**: Unit tests for each task with embedded infrastructure
+
+### ⏳ In Progress / Planned
+- **Database Operations**: Transaction validation and persistence
+- **REST API**: Transaction incentivization endpoints 
+- **Complete Integration**: End-to-end transaction processing pipeline
+
 ## Dependencies
 
 The following dependencies have been configured in `pom.xml`:
@@ -114,7 +132,7 @@ mvn clean compile
 
 ## Task Completion and Submission
 
-### Task One: Environment Setup
+### Task One: Environment Setup ✅ COMPLETED
 
 After setting up your development environment and adding all required dependencies, run the TaskOneTests to verify your setup:
 
@@ -131,6 +149,65 @@ Look for the output snippet in the test logs:
 ```
 
 **Submit this entire snippet (including the begin/end markers) to complete Task One.**
+
+### Task Two: Kafka Integration ✅ COMPLETED
+
+Implement a Kafka listener to receive incoming financial transactions:
+
+#### Requirements:
+- Create a `@KafkaListener` that subscribes to the configured Kafka topic
+- Deserialize incoming messages to `Transaction` objects
+- Use the topic name from `application.yml` configuration
+- No need to process transactions yet (just receive and log them)
+
+#### Implementation:
+
+**TransactionListener.java**
+```java
+@Component
+public class TransactionListener {
+    private static final Logger logger = LoggerFactory.getLogger(TransactionListener.class);
+    
+    @KafkaListener(topics = "${general.kafka-topic}")
+    public void listen(Transaction transaction) {
+        logger.info("Received transaction: {}", transaction);
+    }
+}
+```
+
+**Configuration Updates (application.yml)**
+```yaml
+general:
+  kafka-topic: transactions
+
+spring:
+  kafka:
+    consumer:
+      group-id: midas-core-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.jpmc.midascore.foundation"
+        spring.json.type.mapping: "transaction:com.jpmc.midascore.foundation.Transaction"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+```
+
+#### Testing:
+
+Run the TaskTwoTests to verify Kafka integration:
+
+```bash
+./mvnw test -Dtest=TaskTwoTests
+```
+
+The test sends transactions from the test data file and verifies your listener receives them.
+
+**Answer for Task Two:** The first four transaction amounts received by Midas Core are:
+```
+122.86, 42.87, 161.79, 22.22
+```
 
 ### Submission Process
 
@@ -178,11 +255,14 @@ git push origin main
 
 ## Next Steps
 
-After completing Task One, you'll work on:
-- Task Two: Database integration and JPA setup
-- Task Three: Kafka message processing
-- Task Four: REST API development
-- Task Five: System integration and testing
+Tasks completed:
+- ✅ **Task One**: Environment setup and dependencies
+- ✅ **Task Two**: Kafka integration and message consumption
+
+Upcoming tasks:
+- ▫ **Task Three**: Database operations and transaction validation
+- ▫ **Task Four**: REST API development
+- ▫ **Task Five**: System integration and testing
 
 ## Support
 
