@@ -227,7 +227,6 @@ git commit -m "Complete Task One: Setup development environment and dependencies
 # Push to your fork
 git push origin main
 ```
-
 ## Development Notes
 
 - The H2 database runs in-memory and is automatically configured
@@ -267,3 +266,9 @@ Upcoming tasks:
 ## Support
 
 For issues specific to the Forage program, refer to the program documentation and support channels.
+
+---
+
+### Contributors
+
+**Saurabh Kumar** - *Complete development and implementation*
