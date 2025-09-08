@@ -71,10 +71,13 @@ src/
 - **Spring Boot Configuration**: Auto-configuration for Kafka, JPA, and Web layers
 - **Comprehensive Testing**: Unit tests for each task with embedded infrastructure
 
-### ⏳ In Progress / Planned
-- **REST API**: Transaction incentivization endpoints 
-- **Advanced Features**: Enhanced validation, fraud detection, and analytics
-- **Performance Optimization**: Caching and batch processing capabilities
+### ✅ Recently Completed
+- **REST API Integration**: Complete transaction incentivization system
+  - IncentiveService with RestTemplate integration
+  - Automatic incentive calculation and balance updates
+  - Error handling and logging for API calls
+- **Enhanced Transaction Processing**: Incentive-aware transaction processing
+- **Database Schema Updates**: Added incentive tracking to TransactionRecord entity
 
 ## Dependencies
 
@@ -287,6 +290,77 @@ To determine waldorf's final balance, I analyzed all transactions involving user
 
 **Answer for Task Three:** The final balance of user "waldorf" after processing all transactions is **761.72**.
 
+### Task Four: REST API Integration and Incentive System ✅ COMPLETED
+
+Integrate the external incentives API with Midas Core to provide transaction incentives.
+
+#### Requirements:
+- Integrate with incentives API running on localhost:8080
+- Call `/incentive` endpoint for each validated transaction
+- Add incentive amounts to recipient's balance (not deducted from sender)
+- Store incentive amounts in transaction records
+- Calculate wilbur's final balance after all transactions
+
+#### Implementation:
+
+**Key Components Created:**
+
+1. **Incentive.java** - POJO for API responses
+2. **IncentiveService.java** - Service for API integration
+3. **Enhanced TransactionRecord.java** - Added incentive field
+4. **Updated TransactionListener.java** - Incentive-aware processing
+5. **RestTemplate Configuration** - HTTP client setup
+
+**IncentiveService Implementation:**
+```java
+@Component
+public class IncentiveService {
+    private static final String INCENTIVE_API_URL = "http://localhost:8080/incentive";
+    private final RestTemplate restTemplate;
+    
+    public float getIncentiveAmount(Transaction transaction) {
+        Incentive incentive = restTemplate.postForObject(INCENTIVE_API_URL, transaction, Incentive.class);
+        return incentive != null ? incentive.getAmount() : 0.0f;
+    }
+}
+```
+
+**Enhanced Transaction Processing:**
+```java
+// Get incentive from API
+float incentiveAmount = incentiveService.getIncentiveAmount(transaction);
+
+// Calculate new balances (incentive added to recipient only)
+float newSenderBalance = sender.get().getBalance() - transaction.getAmount();
+float newRecipientBalance = recipient.get().getBalance() + transaction.getAmount() + incentiveAmount;
+
+// Save transaction with incentive
+TransactionRecord transactionRecord = new TransactionRecord(sender.get(), recipient.get(), transaction.getAmount(), incentiveAmount);
+```
+
+#### Testing and Results:
+
+Run TaskFourTests to verify incentive integration:
+
+```bash
+./mvnw test -Dtest=TaskFourTests
+```
+
+**Wilbur's Balance Calculation:**
+
+Initial Balance: 3476.21
+
+Outgoing Transactions (Wilbur as Sender):
+- 9→ 10, amount: 16, incentive: 4.0 → Balance: 3460.21
+- 9→ 5, amount: 8, incentive: 3.0 → Balance: 3452.21
+- 9→ 1, amount: 130.37, incentive: 0.0 → Balance: 3321.84
+- 9→ 7, amount: 128.47, incentive: 0.0 → Balance: 3193.37
+- 9→ 6, amount: 103.95, incentive: 0.0 → Balance: 3089.42
+
+Incoming Transactions: None (Wilbur never received any transactions)
+
+**Final Answer for Task Four:** Wilbur's balance = **3089** (rounded down to nearest integer)
+
 ### Submission Process
 
 1. **For Forage Program**: Submit the output snippet directly in the Forage platform interface
@@ -330,17 +404,16 @@ git push origin main
 
 4. **IDE Issues**: Import as a Maven project and ensure Java 17 is configured
 
-## Next Steps
+## Task Completion Status
 
-Tasks completed:
-- ✅ **Task One**: Environment setup and dependencies
-- ✅ **Task Two**: Kafka integration and message consumption
-- ✅ **Task Three**: Database operations and transaction validation
-
-Upcoming tasks:
-- ✅ **Task Three**: Database operations and transaction validation
-- ▫ **Task Four**: REST API development
-- ▫ **Task Five**: System integration and testing
+- ✅ **Task One**: Environment setup and dependencies - COMPLETED
+- ✅ **Task Two**: Kafka integration and message consumption - COMPLETED
+- ✅ **Task Three**: Database operations and transaction validation - COMPLETED
+- ✅ **Task Four**: REST API integration with incentive system - COMPLETED
+  - Final Answer: Wilbur's balance = **3089** (rounded down)
+  - Successfully integrated incentives API
+  - Enhanced transaction processing with incentive calculations
+  - All changes pushed to forked repository
 
 ## Support
 
