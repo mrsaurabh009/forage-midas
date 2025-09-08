@@ -21,6 +21,9 @@ public class TransactionRecord {
     @Column(nullable = false)
     private float amount;
 
+    @Column(nullable = false, columnDefinition = "REAL DEFAULT 0")
+    private float incentive = 0.0f;
+
     protected TransactionRecord() {
         // JPA constructor
     }
@@ -29,6 +32,14 @@ public class TransactionRecord {
         this.sender = sender;
         this.recipient = recipient;
         this.amount = amount;
+        this.incentive = 0.0f;
+    }
+
+    public TransactionRecord(UserRecord sender, UserRecord recipient, float amount, float incentive) {
+        this.sender = sender;
+        this.recipient = recipient;
+        this.amount = amount;
+        this.incentive = incentive;
     }
 
     public Long getId() {
@@ -59,10 +70,18 @@ public class TransactionRecord {
         this.amount = amount;
     }
 
+    public float getIncentive() {
+        return incentive;
+    }
+
+    public void setIncentive(float incentive) {
+        this.incentive = incentive;
+    }
+
     @Override
     public String toString() {
-        return String.format("TransactionRecord[id=%d, sender=%s, recipient=%s, amount=%.2f]", 
+        return String.format("TransactionRecord[id=%d, sender=%s, recipient=%s, amount=%.2f, incentive=%.2f]", 
                            id, sender != null ? sender.getName() : null, 
-                           recipient != null ? recipient.getName() : null, amount);
+                           recipient != null ? recipient.getName() : null, amount, incentive);
     }
 }

@@ -17,9 +17,11 @@ public class TransactionListener {
     private static final Logger logger = LoggerFactory.getLogger(TransactionListener.class);
     private static int transactionCount = 0;
     private final DatabaseConduit databaseConduit;
+    private final IncentiveService incentiveService;
     
-    public TransactionListener(DatabaseConduit databaseConduit) {
+    public TransactionListener(DatabaseConduit databaseConduit, IncentiveService incentiveService) {
         this.databaseConduit = databaseConduit;
+        this.incentiveService = incentiveService;
     }
     
     @KafkaListener(topics = "${general.kafka-topic}")
@@ -63,19 +65,23 @@ public class TransactionListener {
             }
             
             // All validations passed - process the transaction
+            // Get incentive from API
+            float incentiveAmount = incentiveService.getIncentiveAmount(transaction);
+            
+            // Calculate new balances
             float newSenderBalance = sender.get().getBalance() - transaction.getAmount();
-            float newRecipientBalance = recipient.get().getBalance() + transaction.getAmount();
+            float newRecipientBalance = recipient.get().getBalance() + transaction.getAmount() + incentiveAmount;
             
             // Update balances
             databaseConduit.updateUserBalance(sender.get().getId(), newSenderBalance);
             databaseConduit.updateUserBalance(recipient.get().getId(), newRecipientBalance);
             
-            // Create and save transaction record
-            TransactionRecord transactionRecord = new TransactionRecord(sender.get(), recipient.get(), transaction.getAmount());
+            // Create and save transaction record with incentive
+            TransactionRecord transactionRecord = new TransactionRecord(sender.get(), recipient.get(), transaction.getAmount(), incentiveAmount);
             databaseConduit.saveTransaction(transactionRecord);
             
-            logger.info("Transaction processed: {} -> {} amount: {} (New balances: {} = {}, {} = {})",
-                       sender.get().getName(), recipient.get().getName(), transaction.getAmount(),
+            logger.info("Transaction processed: {} -> {} amount: {}, incentive: {} (New balances: {} = {}, {} = {})",
+                       sender.get().getName(), recipient.get().getName(), transaction.getAmount(), incentiveAmount,
                        sender.get().getName(), newSenderBalance,
                        recipient.get().getName(), newRecipientBalance);
             
